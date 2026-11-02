@@ -1,0 +1,23 @@
+# Render Blueprint — HogFlix Demo 3000
+# Docs: https://render.com/docs/blueprints
+services:
+  - type: web
+    name: hogflix
+    runtime: docker # uses ./Dockerfile (gunicorn on :8080, DB auto-seeds on start)
+    plan: starter # paid tier: enables the persistent disk below
+    healthCheckPath: /
+    disk:
+      name: hogflix-data
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: PH_HOST
+        value: https://us.i.posthog.com
+      - key: PH_PROJECT_KEY
+        sync: false # set in dashboard (or via API) — secret
+      - key: SQLALCHEMY_DATABASE_URI
+        value: sqlite:////data/hogflix.sqlite # absolute path → lives on the persistent disk
+      - key: SECRET_KEY
+        generateValue: true # generated once, persists across deploys (stable login sessions)
+      - key: OPENAI_API_KEY
+        sync: false # optional: enables the LLM chat feature
